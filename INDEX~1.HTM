@@ -709,20 +709,35 @@ document.getElementById("exportCsvBtn").addEventListener("click", () => {
 document.getElementById("printBtn").addEventListener("click", () => window.print());
 
 // Zoom / lightbox: clique em qualquer foto (referência ou anexada) para ampliar
-const lightboxOverlay = document.getElementById("lightboxOverlay");
-const lightboxImg = document.getElementById("lightboxImg");
+// (o overlay fica no fim do HTML, entao so ligamos os listeners depois que a pagina termina de carregar)
 function openLightbox(src) {
   if (!src) return;
+  const lightboxImg = document.getElementById("lightboxImg");
+  const lightboxOverlay = document.getElementById("lightboxOverlay");
+  if (!lightboxImg || !lightboxOverlay) return;
   lightboxImg.src = src;
   lightboxOverlay.classList.add("open");
 }
 function closeLightbox() {
+  const lightboxImg = document.getElementById("lightboxImg");
+  const lightboxOverlay = document.getElementById("lightboxOverlay");
+  if (!lightboxImg || !lightboxOverlay) return;
   lightboxOverlay.classList.remove("open");
   lightboxImg.src = "";
 }
-lightboxOverlay.addEventListener("click", closeLightbox);
-document.getElementById("lightboxClose").addEventListener("click", (e) => { e.stopPropagation(); closeLightbox(); });
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
+function initLightbox() {
+  const lightboxOverlay = document.getElementById("lightboxOverlay");
+  const lightboxClose = document.getElementById("lightboxClose");
+  if (!lightboxOverlay || !lightboxClose) return;
+  lightboxOverlay.addEventListener("click", closeLightbox);
+  lightboxClose.addEventListener("click", (e) => { e.stopPropagation(); closeLightbox(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initLightbox);
+} else {
+  initLightbox();
+}
 document.getElementById("categoriesRoot").addEventListener("click", (e) => {
   const img = e.target.closest("img");
   if (!img || img.id === "lightboxImg") return;
@@ -1040,3 +1055,4 @@ updateProgress();
 </form>
 </body>
 </html>
+
